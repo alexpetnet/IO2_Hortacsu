@@ -72,12 +72,27 @@ def sym_mle(Y1,Y2,X,α0,δ0):
         θo=θn
     return θn
 
-
 # Conduct a Monte Carlo study and save the results as a histogram
-results = np.zeros(50,2)
+results = np.zeros((50,2))
+for i in range(50):
+    Y1,Y2,X = gen_sym_sample(3,6,1000)
+    θ = sym_mle(Y1,Y2,X,1,1)
+    results[i,:]= θ
 
-Y1,Y2,X = gen_sym_sample(3,6,1000)
-sym_mle(Y1,Y2,X,1,1)
+
+plt.hist(results[:,0], density=True, label="Histogram")
+plt.xlabel("α")
+plt.ylabel("Density")
+plt.savefig("figs/hist_alpha.png")
+plt.close()
+
+
+plt.hist(results[:,1], density=True, label="Histogram")
+plt.xlabel("δ")
+plt.ylabel("Density")
+plt.savefig("figs/hist_delta.png")
+plt.close()
+
 
 
 # 1.3.4 ------------------------------------------------------------------------
