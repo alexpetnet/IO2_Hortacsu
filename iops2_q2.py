@@ -43,6 +43,7 @@ for j in range(len(X)):
 
 T0
 
+### 2.3.1.3
 
 def u0(x, θ1, θ2):
     return - θ1 * x - θ2 * ((x / 100) ** 2)
@@ -194,6 +195,8 @@ def poly(V0, θ, ϵ_fp, ϵ_n):
 poly(V_0, np.array([.1, .1, .1]), np.power(0.1, 10), np.power(0.1, 16))
 
 
+### 2.3.1.4
+
 def l(θ, m, d, V, T0, T1):
 
     θ1 = θ[0]
@@ -256,6 +259,8 @@ def L(θ, M, D, ld):
 L(np.array([1, 1, 1]), M, d, False)
 
 
+### 2.3.1.5
+
 def dL(θ, M, D):
 
     θ1 = θ[0]
@@ -295,6 +300,8 @@ def dL(θ, M, D):
 out = dL(np.array([.01, .01, .01]), M, d)
 out
 
+
+### 2.3.1.6
 
 st = np.zeros(3)
 opt = minimize(L, x0 = st, args = (M, d, False), method = 'BFGS', jac = dL)
