@@ -262,7 +262,7 @@ def dL(θ, M, D):
     θ2 = θ[1]
     θ3 = θ[2]
 
-    V = FP(V_0, θ, T0, T1, 0.000001)
+    V = FP(V_0, θ, T0, T1, np.power(0.1, 10))
     #V = poly(V_0, θ, np.power(0.1, 10), np.power(0.1, 16))
     #V = FP_longdouble(V_0, θ, T0, T1, np.power(0.1, 10))
 
