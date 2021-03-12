@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from functools import reduce
+import matplotlib.pyplot as plt
 
 # 1 Data --- -------------------------------------------------------------------
 # Prep variables
@@ -63,7 +64,7 @@ df3 = df.loc[df['num_bidders']>=2]
 nncol3456 = df3.groupby('bidder').agg({'kowin':np.mean, 'recside':np.mean,\
     'payside':np.mean, 'id': np.ma.count})
 
-table5 = table2 = reduce(lambda left,right: pd.merge(left,right,on='bidder'),
+table5 = reduce(lambda left,right: pd.merge(left,right,on='bidder'),
                 [nncol12, nncol3456])
 table5.columns = ['% KO won', '# KOs', '% KO won', '% receive side',
 '% pay side','# KOs']
@@ -71,6 +72,22 @@ table5.index.name ="Bidder #"
 table5.to_latex("ps3/tables/table5.tex",  float_format="%.2f" )
 
 # Figure 1
+df4 = df.loc[df['realisation']<10000]
+all = df.groupby('bidder').agg({'Net  Payment':np.sum})
+small = df4.groupby('bidder').agg({'Net  Payment':np.sum})
 
+all.columns[0]
+
+width = .35
+ind = np.arange(11)
+labs = ind+1
+plt.bar(ind, all['Net  Payment'], width, \
+    label='All Auctions')
+plt.bar(ind + width, small['Net  Payment'], width, \
+    label='Target price below $10,000')
+plt.xticks(ind + width / 2, labs)
+plt.legend(loc='best')
+plt.savefig('ps3/figs/fig1.png')
+plt.close()
 
 # 3 Structural Analysis --------------------------------------------------------
