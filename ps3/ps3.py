@@ -89,11 +89,11 @@ plt.savefig('ps3/figs/fig1.png')
 plt.close()
 
 # 3 Structural Analysis --------------------------------------------------------
-
+#d = pd.read_csv("data/ps3.csv", skiprows = [0])
 d = pd.read_csv("ps3/data/ps3.csv", skiprows = [0])
 d['win'] = (d['bid']>=d['realisation in final auAtion'])& (d['rank']==1)
 d['num_bidders'] = d.groupby(['lot','date'])['bidder'].transform('count')
-d = d.loc[d['num_bidders'] <= 2]
+d = d.loc[d['num_bidders'] == 2]
 
 d['lotdate'] = d['lot'] + [str(i) for i in d['date']]
 for l in d['lotdate'].unique():
@@ -163,7 +163,7 @@ def cdf(x, dens):
     return np.sum(dens[grid < x]) / np.sum(dens)
 
 def h(r):
-    return k.evaluate(r) / (1 - cdf(r, k.evaluate(grid)))
+    return h_bar.evaluate(r) / (1 - cdf(r, k.evaluate(grid)))
 
 hr = h(grid)
 hr_cdf = np.cumsum(hr) / np.sum(hr)
