@@ -91,3 +91,79 @@ plt.savefig('ps3/figs/fig1.png')
 plt.close()
 
 # 3 Structural Analysis --------------------------------------------------------
+
+
+d = pd.read_csv("data/ps3.csv", skiprows = [0])
+d['win'] = (d['bid']>=d['realisation in final auAtion'])& (d['rank']==1)
+d['num_bidders'] = d.groupby(['lot','date'])['bidder'].transform('count')
+d = d.loc[d['num_bidders'] <= 2]
+
+d['lotdate'] = d['lot'] + [str(i) for i in d['date']]
+for l in d['lotdate'].unique():
+    row = d[d['lotdate'] == l].iloc[0, :]
+    row['bid'] = row['realisation in final auAtion']
+    row['bidder'] = 999 # 999 is code for target
+    d = d.append(row)
+
+d = d.drop(columns = ['profit', 'Net  Payment', 'rank'])
+d['bidder'] = [str(i) for i in d['bidder']]
+d = d.dropna()
+d
+
+import statsmodels.api as sm
+
+vars = ['bidder', 'EstDate Min', 'EstDate Max', 'Aatalog PriAe',
+                        'Grade Min ', 'Grade Max', 'ExAlusively US', 'No Value']
+X = pd.get_dummies(data = d[vars])
+
+
+first_stage = sm.OLS(np.log(d['bid']), X).fit()
+print(first_stage.summary())
+d['nb'] = np.log(d['bid']) - d.loc[:, vars[1:]] @ first_stage.params[0:7]
+
+np.mean(d['nb'])
+
+# target winning bids
+#np.exp(d.loc[d['bidder'] == '999', 'nb'])
+
+# max within-ring bids for each lot
+b_mr = [max(np.exp(d.loc[(d['lotdate'] == i) & (d['bidder'] != '999'), 'nb']))
+    for i in d['lotdate'].unique()]
+
+# winning bids that are revealing of valuations
+b_nr = np.array(np.exp(d.loc[(d['bidder'] == '999') & (d['win'] == True), 'nb']))
+b_nr
+
+
+grid = np.linspace(0, 3000, 10000)
+
+from scipy import stats
+import matplotlib.pyplot as plt
+
+
+
+k = stats.gaussian_kde(b_mr, bw_method = 'silverman')
+cdf = np.cumsum(k.evaluate(grid)) / np.sum(k.evaluate(grid))
+
+plt.plot(grid, k.evaluate(grid))
+plt.plot(grid, cdf)
+
+h_bar = stats.gaussian_kde(b_nr, bw_method = 'silverman')
+cdf_hbar = np.cumsum(h_bar.evaluate(grid)) / np.sum(h_bar.evaluate(grid))
+
+plt.plot(grid, h_bar.evaluate(grid))
+
+plt.plot(grid, cdf_hbar)
+
+
+def cdf(x, dens):
+    return np.sum(dens[grid < x]) / np.sum(dens)
+
+cdf(100, k.evaluate(grid))
+
+def h(r):
+    return k.evaluate(r) / (1 - cdf(r, k.evaluate(grid)))
+
+hr = h(grid)
+
+plt.plot(grid, hr)
