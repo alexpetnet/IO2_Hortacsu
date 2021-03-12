@@ -133,13 +133,11 @@ b_mr = [max(np.exp(d.loc[(d['lotdate'] == i) & (d['bidder'] != '999'), 'nb']))
 
 # winning bids that are revealing of valuations
 b_nr = np.array(np.exp(d.loc[(d['bidder'] == '999') & (d['win'] == True), 'nb']))
-b_nr
 
 
 grid = np.linspace(0, 3000, 10000)
 
 from scipy import stats
-import matplotlib.pyplot as plt
 
 
 
@@ -147,27 +145,34 @@ k = stats.gaussian_kde(b_mr, bw_method = 'silverman')
 cdf = np.cumsum(k.evaluate(grid)) / np.sum(k.evaluate(grid))
 
 plt.plot(grid, k.evaluate(grid))
+plt.savefig('figures/gm.pdf')
 plt.plot(grid, cdf)
+plt.savefig('figures/gm_cdf.pdf')
 
 h_bar = stats.gaussian_kde(b_nr, bw_method = 'silverman')
 cdf_hbar = np.cumsum(h_bar.evaluate(grid)) / np.sum(h_bar.evaluate(grid))
 
 plt.plot(grid, h_bar.evaluate(grid))
+plt.savefig('figures/h_bar.pdf')
 
 plt.plot(grid, cdf_hbar)
+plt.savefig('figures/h_bar_cdf.pdf')
 
 
 def cdf(x, dens):
     return np.sum(dens[grid < x]) / np.sum(dens)
 
-cdf(100, k.evaluate(grid))
-
 def h(r):
     return k.evaluate(r) / (1 - cdf(r, k.evaluate(grid)))
 
 hr = h(grid)
+hr_cdf = np.cumsum(hr) / np.sum(hr)
 
 plt.plot(grid, hr)
+plt.savefig('figures/hr.pdf')
+
+plt.plot(grid, hr_cdf)
+plt.savefig('figures/hr_cdf.pdf')
 
 
 # 3.4 Step 4
