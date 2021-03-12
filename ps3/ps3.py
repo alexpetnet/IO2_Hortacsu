@@ -11,7 +11,9 @@ df['win'] = (df['bid']>=df['realisation'])& (df['rank']==1)
 df['valwon']=df['win']*df['value']
 df['id']= df['Data NuEer']
 df['lotdate'] = df['lot']+[str(i) for i in df['date']]
-
+df['kowin'] = df['rank']==1
+df['recside'] = df['Net  Payment']>0
+df['payside'] = df['Net  Payment']<0
 # Table 1
 col1234 = df.groupby("house").agg({'realisation' : [np.mean, np.std],
                         'bid' : [np.mean, np.std]})
@@ -51,6 +53,24 @@ table2.columns = ['Target mean', 'Target SD',
 table2.index.name ="# Bidders"
 table2.to_latex("ps3/tables/table2.tex",  float_format="%.2f" )
 
+# Remove auctions with more than 2 ring-members bidding
+df2 = df.loc[df['num_bidders']<=2]
+
 # 2 Introductory Questions -----------------------------------------------------
+# Table 5
+nncol12 = df.groupby('bidder').agg({'kowin':np.mean, 'id': np.ma.count})
+df3 = df.loc[df['num_bidders']>=2]
+nncol3456 = df3.groupby('bidder').agg({'kowin':np.mean, 'recside':np.mean,\
+    'payside':np.mean, 'id': np.ma.count})
+
+table5 = table2 = reduce(lambda left,right: pd.merge(left,right,on='bidder'),
+                [nncol12, nncol3456])
+table5.columns = ['% KO won', '# KOs', '% KO won', '% receive side',
+'% pay side','# KOs']
+table5.index.name ="Bidder #"
+table5.to_latex("ps3/tables/table5.tex",  float_format="%.2f" )
+
+# Figure 1
+
 
 # 3 Structural Analysis --------------------------------------------------------
