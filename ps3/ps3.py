@@ -76,8 +76,6 @@ df4 = df.loc[df['realisation']<10000]
 all = df.groupby('bidder').agg({'Net  Payment':np.sum})
 small = df4.groupby('bidder').agg({'Net  Payment':np.sum})
 
-all.columns[0]
-
 width = .35
 ind = np.arange(11)
 labs = ind+1
@@ -92,8 +90,7 @@ plt.close()
 
 # 3 Structural Analysis --------------------------------------------------------
 
-
-d = pd.read_csv("data/ps3.csv", skiprows = [0])
+d = pd.read_csv("ps3/data/ps3.csv", skiprows = [0])
 d['win'] = (d['bid']>=d['realisation in final auAtion'])& (d['rank']==1)
 d['num_bidders'] = d.groupby(['lot','date'])['bidder'].transform('count')
 d = d.loc[d['num_bidders'] <= 2]
@@ -112,6 +109,7 @@ d
 
 import statsmodels.api as sm
 
+# 3.1 Step 1
 vars = ['bidder', 'EstDate Min', 'EstDate Max', 'Aatalog PriAe',
                         'Grade Min ', 'Grade Max', 'ExAlusively US', 'No Value']
 X = pd.get_dummies(data = d[vars])
@@ -121,8 +119,11 @@ first_stage = sm.OLS(np.log(d['bid']), X).fit()
 print(first_stage.summary())
 d['nb'] = np.log(d['bid']) - d.loc[:, vars[1:]] @ first_stage.params[0:7]
 
+# 3.2 Step 2
 np.mean(d['nb'])
+s
 
+# 3.3 Step 3
 # target winning bids
 #np.exp(d.loc[d['bidder'] == '999', 'nb'])
 
@@ -132,11 +133,13 @@ b_mr = [max(np.exp(d.loc[(d['lotdate'] == i) & (d['bidder'] != '999'), 'nb']))
 
 # winning bids that are revealing of valuations
 b_nr = np.array(np.exp(d.loc[(d['bidder'] == '999') & (d['win'] == True), 'nb']))
+b_nr
 
 
 grid = np.linspace(0, 3000, 10000)
 
 from scipy import stats
+import matplotlib.pyplot as plt
 
 
 
@@ -144,31 +147,39 @@ k = stats.gaussian_kde(b_mr, bw_method = 'silverman')
 cdf = np.cumsum(k.evaluate(grid)) / np.sum(k.evaluate(grid))
 
 plt.plot(grid, k.evaluate(grid))
-plt.savefig('figures/gm.pdf')
 plt.plot(grid, cdf)
-plt.savefig('figures/gm_cdf.pdf')
 
 h_bar = stats.gaussian_kde(b_nr, bw_method = 'silverman')
 cdf_hbar = np.cumsum(h_bar.evaluate(grid)) / np.sum(h_bar.evaluate(grid))
 
 plt.plot(grid, h_bar.evaluate(grid))
-plt.savefig('figures/h_bar.pdf')
 
 plt.plot(grid, cdf_hbar)
-plt.savefig('figures/h_bar_cdf.pdf')
 
 
 def cdf(x, dens):
     return np.sum(dens[grid < x]) / np.sum(dens)
 
+cdf(100, k.evaluate(grid))
+
 def h(r):
     return k.evaluate(r) / (1 - cdf(r, k.evaluate(grid)))
 
 hr = h(grid)
-hr_cdf = np.cumsum(hr) / np.sum(hr)
 
 plt.plot(grid, hr)
-plt.savefig('figures/hr.pdf')
 
-plt.plot(grid, hr_cdf)
-plt.savefig('figures/hr_cdf.pdf')
+
+# 3.4 Step 4
+
+# 1. bid function for each bidder
+def gj(df,j):
+    x = df.loc[df['bidder'] == str(j)]['bid']
+    return stats.gaussian_kde(x, bw_method = 'silverman')
+
+# illustration
+plt.plot(grid, gj(d,7).evaluate(grid))
+plt.savefig('ps3/figs/nonpara-bid.png')
+plt.close()
+
+# 2. participation probability
