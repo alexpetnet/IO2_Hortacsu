@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 # 1 Data --- -------------------------------------------------------------------
 # Prep variables
-df = pd.read_csv("ps3/data/ps3.csv", skiprows = [0])
+df = pd.read_csv("data/.csv", skiprows = [0])
 df['value']=(df['EstDate Min']+df['EstDate Max'])/2
 df['realisation']=df['realisation in final auAtion']
 df['win'] = (df['bid']>=df['realisation'])& (df['rank']==1)
@@ -34,7 +34,7 @@ table1.columns = ['Target mean', 'Target SD',
     'Bid mean', 'Bid SD', '% lots won',
     '% value won', '# lots']
 table1.index.name ="House"
-table1.to_latex("ps3/tables/table1.tex",  float_format="%.2f" )
+table1.to_latex("tables/table1.tex",  float_format="%.2f" )
 
 # Table 2
 df['num_bidders'] = df.groupby(['lot','date']).id.transform('nunique')
@@ -52,7 +52,7 @@ table2.columns = ['Target mean', 'Target SD',
     'Bid mean', 'Bid SD', '% lots won',
     '# lots']
 table2.index.name ="# Bidders"
-table2.to_latex("ps3/tables/table2.tex",  float_format="%.2f" )
+table2.to_latex("/tables/table2.tex",  float_format="%.2f" )
 
 # Remove auctions with more than 2 ring-members bidding
 df2 = df.loc[df['num_bidders']<=2]
@@ -69,7 +69,7 @@ table5 = reduce(lambda left,right: pd.merge(left,right,on='bidder'),
 table5.columns = ['% KO won', '# KOs', '% KO won', '% receive side',
 '% pay side','# KOs']
 table5.index.name ="Bidder #"
-table5.to_latex("ps3/tables/table5.tex",  float_format="%.2f" )
+table5.to_latex("tables/table5.tex",  float_format="%.2f" )
 
 # Figure 1
 df4 = df.loc[df['realisation']<10000]
@@ -85,12 +85,12 @@ plt.bar(ind + width, small['Net  Payment'], width, \
     label='Target price below $10,000')
 plt.xticks(ind + width / 2, labs)
 plt.legend(loc='best')
-plt.savefig('ps3/figs/fig1.png')
+plt.savefig('/figs/fig1.png')
 plt.close()
 
 # 3 Structural Analysis --------------------------------------------------------
-#d = pd.read_csv("data/ps3.csv", skiprows = [0])
-d = pd.read_csv("ps3/data/ps3.csv", skiprows = [0])
+#d = pd.read_csv("data/.csv", skiprows = [0])
+d = pd.read_csv("/data/.csv", skiprows = [0])
 d['win'] = (d['bid']>=d['realisation in final auAtion'])& (d['rank']==1)
 d['num_bidders'] = d.groupby(['lot','date'])['bidder'].transform('count')
 d = d.loc[d['num_bidders'] == 2]
@@ -182,7 +182,7 @@ def gj(df,j):
 
 # illustration
 plt.plot(grid, gj(d,1).evaluate(grid))
-plt.savefig('ps3/figs/nonpara-bid.png')
+plt.savefig('/figs/nonpara-bid.png')
 plt.close()
 
 # 2. participation probability
@@ -206,11 +206,11 @@ def Gnotj(df,α,j,grid):
 
 # illustration
 plt.plot(grid,gnotj(d,α,1,grid))
-plt.savefig('ps3/figs/pdfgdemo.png')
+plt.savefig('/figs/pdfgdemo.png')
 plt.close()
 
 plt.plot(grid,Gnotj(d,α,1,grid))
-plt.savefig('ps3/figs/cdfGdemo.png')
+plt.savefig('/figs/cdfGdemo.png')
 plt.close()
 
 
@@ -227,3 +227,18 @@ def val(df,α,j,grid,hr_cdf,hr):
 vmod = val(d,α,1,grid,hr_cdf,hr)
 plt.plot(vmod[700:4000],grid[700:4000])
 plt.plot(grid[700:4000],grid[700:4000])
+plt.savefig('/figs/cdfGdemo.png')
+plt.close()
+
+
+# # trouble shooting
+# h = hr/np.sum(hr)
+# H = np.cumsum(h)
+# g = gnotj(d,α,1,grid)
+# g = g/np.sum(g)
+# G = np.cumsum(g)
+# num = .5*H*(1-G)
+# den = h*G +H*g
+# vmod = grid - (num/den)
+# plt.plot(vmod[700:4000],grid[700:4000])
+# plt.plot(grid[700:4000],grid[700:4000])
