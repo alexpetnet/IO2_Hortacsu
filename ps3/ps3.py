@@ -174,7 +174,6 @@ plt.plot(grid, hr_cdf)
 plt.savefig('figures/hr_cdf.pdf')
 
 # 3.4 Step 4
-α
 # 1. bid function for each bidder
 def gj(df,j):
     x = df.loc[df['bidder'] == str(j)]['bid']
