@@ -121,7 +121,7 @@ d['nb'] = np.log(d['bid']) - d.loc[:, vars[1:]] @ first_stage.params[0:7]
 
 # 3.2 Step 2
 np.mean(d['nb'])
-s
+
 
 # 3.3 Step 3
 # target winning bids
@@ -138,7 +138,6 @@ b_nr = np.array(np.exp(d.loc[(d['bidder'] == '999') & (d['win'] == True), 'nb'])
 grid = np.linspace(0, 3000, 10000)
 
 from scipy import stats
-
 
 
 k = stats.gaussian_kde(b_mr, bw_method = 'silverman')
@@ -174,7 +173,6 @@ plt.savefig('figures/hr.pdf')
 plt.plot(grid, hr_cdf)
 plt.savefig('figures/hr_cdf.pdf')
 
-
 # 3.4 Step 4
 
 # 1. bid function for each bidder
@@ -183,8 +181,49 @@ def gj(df,j):
     return stats.gaussian_kde(x, bw_method = 'silverman')
 
 # illustration
-plt.plot(grid, gj(d,7).evaluate(grid))
+plt.plot(grid, gj(d,1).evaluate(grid))
 plt.savefig('ps3/figs/nonpara-bid.png')
 plt.close()
 
 # 2. participation probability
+n = len(d['lotdate'].unique())
+α = np.array([len(d.loc[d['bidder'] == str(j)]) for j in np.arange(1,12,1)])/n
+
+d.groupby("bidder")["lotdate"].nunique()
+# 3. Pdf and Cdf
+# note kernel density requires more than two points so remove bidders 8, 10, 11
+def gnotj(df,α,j,grid):
+    norm = np.sum(α)-α[j-1]-α[7]-α[9]-α[10]
+    gnotj = np.zeros(np.shape(grid))
+    for i in np.arange(1,12,1):
+        if i not in [j,8,10,11]:
+            gnotj += (α[i-1]/norm)*gj(df,i).evaluate(grid)
+    return gnotj
+
+def Gnotj(df,α,j,grid):
+    g = gnotj(df,α,j,grid)
+    return np.cumsum(g)/np.sum(g)
+
+# illustration
+plt.plot(grid,gnotj(d,α,1,grid))
+plt.savefig('ps3/figs/pdfgdemo.png')
+plt.close()
+
+plt.plot(grid,Gnotj(d,α,1,grid))
+plt.savefig('ps3/figs/cdfGdemo.png')
+plt.close()
+
+
+# 4. Value function
+def val(df,α,j,grid,hr_cdf,hr):
+    H = hr_cdf
+    h = hr
+    g = gnotj(df,α,j,grid)
+    G = Gnotj(df,α,j,grid)
+    num = .5*H*(1-G)
+    den = h*G +H*g
+    return grid - (num/den)
+
+vmod = val(d,α,1,grid,hr_cdf,hr)
+plt.plot(vmod[700:4000],grid[700:4000])
+plt.plot(grid[700:4000],grid[700:4000])
