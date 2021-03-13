@@ -177,7 +177,7 @@ plt.savefig('figures/hr_cdf.pdf')
 
 # 1. bid function for each bidder
 def gj(df,j):
-    x = df.loc[df['bidder'] == str(j)]['bid']
+    x = np.exp(df.loc[df['bidder'] == str(j)]['nb'])
     return stats.gaussian_kde(x, bw_method = 'silverman')
 
 # illustration
