@@ -174,7 +174,7 @@ plt.plot(grid, hr_cdf)
 plt.savefig('figures/hr_cdf.pdf')
 
 # 3.4 Step 4
-
+α
 # 1. bid function for each bidder
 def gj(df,j):
     x = df.loc[df['bidder'] == str(j)]['bid']
@@ -185,7 +185,7 @@ plt.plot(grid, gj(d,1).evaluate(grid))
 plt.savefig('/figs/nonpara-bid.png')
 plt.close()
 
-# 2. participation probability
+# 2. participation probability f
 n = len(d['lotdate'].unique())
 α = np.array([len(d.loc[d['bidder'] == str(j)]) for j in np.arange(1,12,1)])/n
 
@@ -210,7 +210,7 @@ plt.savefig('/figs/pdfgdemo.png')
 plt.close()
 
 plt.plot(grid,Gnotj(d,α,1,grid))
-plt.savefig('/figs/cdfGdemo.png')
+plt.savefig('figs/cdfGdemo.png')
 plt.close()
 
 
@@ -227,7 +227,7 @@ def val(df,α,j,grid,hr_cdf,hr):
 vmod = val(d,α,1,grid,hr_cdf,hr)
 plt.plot(vmod[700:4000],grid[700:4000])
 plt.plot(grid[700:4000],grid[700:4000])
-plt.savefig('/figs/cdfGdemo.png')
+plt.savefig('figs/bid-value.png')
 plt.close()
 
 
